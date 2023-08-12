@@ -4,7 +4,7 @@ import logging
 from argparse import ArgumentParser
 from typing import TYPE_CHECKING, Final
 
-from .audio import start_audacity
+from .audio import AudacityController
 from .cli.args import LOG_FORMAT, NOVACLIArgs, loglevel
 
 if TYPE_CHECKING:
@@ -28,7 +28,10 @@ def main() -> None:
 
 
 def exec_start(args: Namespace) -> None:
-    start_audacity()
+    controller = AudacityController()
+    controller.start_audacity()
+    controller.open_pipes()
+    controller.quick_test()
 
 
 def _create_argument_parser() -> ArgumentParser:

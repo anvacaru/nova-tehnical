@@ -6,6 +6,7 @@ authors = ["Andrei <andrei.vacaru@runtimeverification.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+psutil = "^5.9.5"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -15,6 +16,7 @@ flake8 = "*"
 isort = "*"
 autoflake = "*"
 flake8-quotes = "*"
+types-psutil = "*"
 
 [tool.poetry.scripts]
 nova-py = "nova_py.__main__:main"
