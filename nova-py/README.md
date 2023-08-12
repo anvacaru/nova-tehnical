@@ -1,6 +1,14 @@
-# Nova-Py Project
+# nova-py Project
 
 This repository contains the source code for the nova-py project, managed using Poetry.
+
+## Usage
+
+Use Poetry to run the `nova-py` commands:
+
+```bash
+poetry run nova-py [COMMAND]
+```
 
 ## Prerequisites
 
