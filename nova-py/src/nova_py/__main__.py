@@ -30,8 +30,8 @@ def main() -> None:
 def exec_start(args: Namespace) -> None:
     controller = AudacityController()
     controller.start_audacity()
-    controller.open_pipes()
-    controller.quick_test()
+    with controller.opened_pipes():
+        controller.stop_audacity()
 
 
 def _create_argument_parser() -> ArgumentParser:
