@@ -16,8 +16,6 @@ if TYPE_CHECKING:
 
 
 _LOGGER: Final = logging.getLogger(__name__)
-SOUNDSCAPE: Final = '/Users/anvacaru/Desktop/dev/nova-tehnical/audio/soundscape.mp3'
-RECORDINGS: Final = '/Users/anvacaru/Desktop/dev/nova-tehnical/audio/recordings'
 AUDACITY_WAIT_TIME: Final = 3
 AUDACITY_TIMEOUT_TIME: Final = 10
 
@@ -29,6 +27,7 @@ class AudacityController:
 
         self._TOFILE: Optional[IO[str]] = None
         self._FROMFILE: Optional[IO[str]] = None
+        self._total_tracks: int = 0
         self._TONAME: Path
         self._FROMNAME: Path
         self._EOL: str
@@ -64,9 +63,11 @@ class AudacityController:
             command=f'SaveProject2: Filename={output_path} AddToHistory={add_to_history} Compress={compress}'
         )
 
-    def import_audio(self, input_path: str) -> None:
+    def import_audio(self, input_path: str) -> int:
         check_file_path(Path(input_path))
         self.do_command(command=f'Import2: Filename={input_path}')
+        self._total_tracks += 1
+        return self._total_tracks - 1
 
     def import_audio_batch(self, input_dir: str) -> None:
         input_dir_object = Path(input_dir)
@@ -76,11 +77,29 @@ class AudacityController:
         for file_path in wav_files:
             self.import_audio(input_path=str(file_path))
 
+    def move_audio_clip(self, track: int, destination_start: int, destination_end: int) -> None:
+        self.select_audio(track=track, start=0, end=0)
+        self.select_cursor_to_next_clip_boundary()
+        self.cut_audio()
+        self.select_audio(track=track, start=destination_start, end=destination_end)
+        self.paste_audio()
+
     def select_audio(self, track: int = 0, start: int = 0, end: int = 0) -> None:
-        self.do_command(command='Select: Start={start} End={end} Track={track}')
+        if track < 0 or track >= self._total_tracks:
+            raise ValueError(f'Invalid track number: {track}')
+        self.do_command(command=f'Select: Start={start} End={end} Track={track}')
 
     def select_cursor_to_next_clip_boundary(self) -> None:
         self.do_command(command='SelCursorToNextClipBoundary')
+
+    def select_all(self) -> None:
+        self.do_command(command='SelectAll')
+
+    def select_tracks(self, track: int, count: int = 1) -> None:
+        self.do_command(command=f'SelectTracks:Mode=Set Track={track} TrackCount={count}')
+
+    def remove_tracks(self) -> None:
+        self.do_command(command='RemoveTracks')
 
     def cut_audio(self) -> None:
         self.do_command(command='Cut')
@@ -88,10 +107,13 @@ class AudacityController:
     def paste_audio(self) -> None:
         self.do_command(command='Paste')
 
+    def delete_audio(self) -> None:
+        self.do_command(command='Delete')
+
     def export_audio(self, output_path: str) -> None:
-        check_file_path(path=Path(output_path))
         export_command = 'Export2: Filename={}'.format(output_path)
         self.do_command(command=export_command)
+        time.sleep(5)
 
     def stop_audacity(self) -> None:
         self._send_command(command='Exit')
@@ -100,6 +122,7 @@ class AudacityController:
         self._send_command(command=command)
         response = self._get_response()
         _LOGGER.debug(f'Received response from Audacity: {response}')
+        time.sleep(0.4)
         return response
 
     def _send_command(self, command: str) -> None:
