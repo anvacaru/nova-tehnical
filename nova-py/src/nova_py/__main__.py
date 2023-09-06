@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import logging
 from argparse import ArgumentParser, ArgumentTypeError
+from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 from .audio import AudacityController
 from .cli.args import LOG_FORMAT, NOVACLIArgs, loglevel
+from .image import Controller
+from .processing import color_picker, color_picker2
 from .scenario import Scenario
 
 if TYPE_CHECKING:
@@ -28,7 +31,7 @@ def main() -> None:
     execute(args)
 
 
-def exec_start(args: Namespace) -> None:
+def exec_audio(args: Namespace) -> None:
     controller = AudacityController()
     controller.start_audacity()
     with controller.opened_pipes():
@@ -44,6 +47,22 @@ def exec_start(args: Namespace) -> None:
         controller.stop_audacity()
 
 
+def exec_image(args: Namespace) -> None:
+    output = Path('/Users/anvacaru/Desktop/dev/nova-tehnical/photos/output')
+    controller = Controller()
+    controller.read_files(Path(args.file_path))
+    controller.process_heic_files()
+    controller.run_all_photos(output)
+
+
+def exec_picker(args: Namespace) -> None:
+    color_picker2(args.file_path)
+
+
+def exec_trackbar(args: Namespace) -> None:
+    color_picker(args.file_path)
+
+
 def _create_argument_parser() -> ArgumentParser:
     def scenario_type(arg: str) -> Scenario:
         try:
@@ -55,13 +74,13 @@ def _create_argument_parser() -> ArgumentParser:
     nova_py_args = ArgumentParser()
     nova_py_args_command = nova_py_args.add_subparsers(dest='command', required=True)
 
-    start_parser = nova_py_args_command.add_parser(
-        'start',
-        help='Start Processing.',
+    audio_parser = nova_py_args_command.add_parser(
+        'audio',
+        help='Start Audio Processing.',
         parents=[nova_cli_args.logging_args],
     )
 
-    start_parser.add_argument(
+    audio_parser.add_argument(
         '--scenario',
         type=scenario_type,
         choices=list(Scenario),
@@ -69,6 +88,29 @@ def _create_argument_parser() -> ArgumentParser:
         help='The scenario to process during startup.',
     )
 
+    image_parser = nova_py_args_command.add_parser(
+        'image',
+        help='Start Image Processing.',
+        parents=[nova_cli_args.logging_args],
+    )
+
+    image_parser.add_argument('file_path', help='Path to the image file.')
+
+    trackbar_parser = nova_py_args_command.add_parser(
+        'trackbar',
+        help='Start Color Trackbar.',
+        parents=[nova_cli_args.logging_args],
+    )
+
+    trackbar_parser.add_argument('file_path', help='Path to the image file.')
+
+    picker_parser = nova_py_args_command.add_parser(
+        'picker',
+        help='Start Color Picker.',
+        parents=[nova_cli_args.logging_args],
+    )
+
+    picker_parser.add_argument('file_path', help='Path to the image file.')
     return nova_py_args
 
 
