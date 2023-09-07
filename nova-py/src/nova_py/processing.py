@@ -151,19 +151,21 @@ def process_image_with_opencv_dominant(image_path: Path, output_path: Path) -> N
     cv2.imwrite(str(output_path), img_bgra)
 
 
-def process_video_with_opencv(
+def process_video_with_opencv_bounds(
     input_path: str,
     output_path: str,
-    export_to_frames: bool,
-    lbound: ndarray = LOWER_BOUND_1,
-    ubound: ndarray = UPPER_BOUND_1,
+    export_to_frames: bool = False,
+    lbound: ndarray = LOWER_BOUND_2,
+    ubound: ndarray = UPPER_BOUND_2,
 ) -> None:
     """
     HSV Range Filtering with OpenCV: Targets green by using HSV color space and specifying upper and lower bounds for green hues.
     """
-    _LOGGER.info(f'Processing {input_path} with OpenCV with green lower and upper bounds')
+    _LOGGER.info(f'Processing {input_path} with OpenCV with green lower and upper bounds.')
     _LOGGER.info(f'Green lower bound: {lbound}')
     _LOGGER.info(f'Green upper bound: {ubound}')
+    if export_to_frames:
+        _LOGGER.info(f'Exporting frames to {output_path}')
 
     video = cv2.VideoCapture(input_path)
     # fourcc = cv2.VideoWriter_fourcc('p', 'n', 'g', ' ')  # type: ignore # Using PNG codec for transparency support
@@ -201,12 +203,14 @@ def process_video_with_opencv(
     cv2.destroyAllWindows()
 
 
-def process_video_with_opencv_dominant_color(input_path: str, output_path: str) -> None:
+def process_video_with_opencv_dominant_color(input_path: str, output_path: str, export_to_frames: bool = False) -> None:
     """
     Most Abundant Saturation with OpenCV: egments based on the most dominant saturation level in the image, potentially useful for variable backgrounds.
     """
 
-    _LOGGER.info(f'Processing {input_path} with OpenCV. Exporting frames.')
+    _LOGGER.info(f'Processing {input_path} with OpenCV with dominant frames.')
+    if export_to_frames:
+        _LOGGER.info(f'Exporting frames to {output_path}')
     # open up video
     cap = cv2.VideoCapture(input_path)
 
@@ -220,7 +224,12 @@ def process_video_with_opencv_dominant_color(input_path: str, output_path: str) 
     # videowriter
     res = (w, h)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # type: ignore
-    out = cv2.VideoWriter(output_path, fourcc, 30.0, res)
+    if export_to_frames:
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        frame_count = 0
+    else:
+        out = cv2.VideoWriter(output_path, fourcc, 30.0, res)
 
     # loop
     done = False
@@ -253,22 +262,30 @@ def process_video_with_opencv_dominant_color(input_path: str, output_path: str) 
         margin = 15
         mask = cv2.inRange(s, big_color - margin, big_color + margin)  # type: ignore
 
-        # smooth out the mask and invert
+        # smooth out the mask
         kernel = np.ones((3, 3), np.uint8)
         mask = cv2.dilate(mask, kernel, iterations=1)
         mask = cv2.medianBlur(mask, 5)
-        mask = cv2.bitwise_not(mask)
+        mask_inv = cv2.bitwise_not(mask)  # inverse mask
 
-        # crop out the image
-        crop = np.zeros_like(img)
-        crop[mask == 255] = img[mask == 255]
+        # Convert image to BGRA format
+        img_bgra = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
+        img_bgra[:, :, 3] = mask_inv  # set alpha channel using the inverse mask
 
         # save
-        out.write(crop)
+        if export_to_frames:
+            frame_filename = os.path.join(output_path, f'frame_{frame_count:04}.png')
+            cv2.imwrite(frame_filename, img_bgra)
+            frame_count += 1
+        else:
+            out.write(img_bgra)
 
     # close caps
     cap.release()
-    out.release()
+    if not export_to_frames:
+        out.release()
+        cv2.destroyAllWindows()
+    cv2.destroyAllWindows()
 
 
 def color_picker(filepath: str) -> None:

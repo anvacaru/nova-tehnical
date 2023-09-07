@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import platform
+import subprocess
 from os import scandir
 from pathlib import Path
 from typing import Final
@@ -15,6 +16,8 @@ from .processing import (
     process_image_with_opencv_dominant,
     process_image_with_opencv_treshold,
     process_image_with_pillow,
+    process_video_with_opencv_bounds,
+    process_video_with_opencv_dominant_color,
 )
 from .utils import check_dir_path
 
@@ -47,6 +50,13 @@ class Controller:
         ext = os.path.splitext(file_path)[1].lower()
         return ext in extensions
 
+    @staticmethod
+    def invoke_ffmpeg(input_path: Path, output_path: Path) -> None:
+        # ffmpeg -i photos/output/frame_%04d.png -vcodec png z.mov
+        cmd = ['ffmpeg', '-i', f'{input_path}/frame_%04d.png', '-vcodec', 'png', f'{output_path}']
+        _LOGGER.info(f'Calling: {cmd}')
+        subprocess.run(cmd, check=True)
+
     @property
     def photos(self) -> list[Path]:
         return [file for file in self._files if self.is_photo(file)]
@@ -75,3 +85,24 @@ class Controller:
         for p in self.heic_photos:
             np = heic_to_jpg(p)
             self._files.append(np)
+
+    def process_video_files(self, output_dir: Path) -> None:
+        for p in self.videos:
+            process_video_with_opencv_bounds(input_path=str(p), output_path=str(output_dir / (p.stem + 'bounds.mp4')))
+            process_video_with_opencv_bounds(
+                input_path=str(p), output_path=str(output_dir / (p.stem + 'bounds_frames')), export_to_frames=True
+            )
+            process_video_with_opencv_dominant_color(
+                input_path=str(p), output_path=str(output_dir / (p.stem + 'dominant.mp4'))
+            )
+            process_video_with_opencv_dominant_color(
+                input_path=str(p), output_path=str(output_dir / (p.stem + 'dominant_frames')), export_to_frames=True
+            )
+            self.invoke_ffmpeg(
+                input_path=output_dir / (p.stem + 'bounds_frames'),
+                output_path=output_dir / (p.stem + 'bounds_frames.mov'),
+            )
+            self.invoke_ffmpeg(
+                input_path=output_dir / (p.stem + 'dominant_frames'),
+                output_path=output_dir / (p.stem + 'dominant_frames.mov'),
+            )

@@ -51,8 +51,9 @@ def exec_image(args: Namespace) -> None:
     output = Path('/Users/anvacaru/Desktop/dev/nova-tehnical/photos/output')
     controller = Controller()
     controller.read_files(Path(args.file_path))
-    controller.process_heic_files()
-    controller.run_all_photos(output)
+    # controller.process_heic_files()
+    # controller.run_all_photos(output)
+    controller.process_video_files(output)
 
 
 def exec_picker(args: Namespace) -> None:
