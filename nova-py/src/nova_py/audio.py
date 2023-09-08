@@ -41,7 +41,7 @@ class AudacityController:
             self._process_name = 'audacity.exe'
             self._CMD = [self._process_name]
         elif os_name in {OSName.DARWIN.value, OSName.LINUX.value}:
-            uid = os.getuid()
+            uid = os.getuid()  # type: ignore
             self._TONAME = Path(f'/tmp/audacity_script_pipe.to.{uid}')
             self._FROMNAME = Path(f'/tmp/audacity_script_pipe.from.{uid}')
             self._EOL = '\n'

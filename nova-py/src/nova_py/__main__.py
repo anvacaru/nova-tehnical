@@ -48,11 +48,11 @@ def exec_audio(args: Namespace) -> None:
 
 
 def exec_image(args: Namespace) -> None:
-    output = Path('/Users/anvacaru/Desktop/dev/nova-tehnical/photos/output')
+    output = args.output_path  # Path('/Users/anvacaru/Desktop/dev/nova-tehnical/photos/output')
     controller = Controller()
     controller.read_files(Path(args.file_path))
-    # controller.process_heic_files()
-    # controller.run_all_photos(output)
+    controller.process_heic_files()
+    controller.run_all_photos(output)
     controller.process_video_files(output)
 
 
@@ -97,6 +97,7 @@ def _create_argument_parser() -> ArgumentParser:
 
     image_parser.add_argument('file_path', help='Path to the image file.')
 
+    image_parser.add_argument('output_path', help='Path to store the output to.')
     trackbar_parser = nova_py_args_command.add_parser(
         'trackbar',
         help='Start Color Trackbar.',

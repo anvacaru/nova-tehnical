@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 import skimage.exposure  # type: ignore
 from numpy import ndarray
-from PIL import Image
+from PIL import Image  # type: ignore
 from pillow_heif import register_heif_opener  # type: ignore
 
 _LOGGER: Final = logging.getLogger(__name__)

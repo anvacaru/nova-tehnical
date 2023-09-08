@@ -71,12 +71,16 @@ class Controller:
 
     def run_all_photos(self, output_dir: Path) -> None:
         for p in self.photos:
-            process_image_with_pillow(image_path=p, output_path=output_dir / (p.stem + 'pillow.png'))
-            process_image_with_opencv_treshold(image_path=p, output_path=output_dir / (p.stem + 'treshold.png'))
-            process_image_with_opencv_dominant(image_path=p, output_path=output_dir / (p.stem + 'dominant.png'))
+            process_image_with_pillow(image_path=p, output_path=Path(os.path.join(output_dir, (p.stem + 'pillow.png'))))
+            process_image_with_opencv_treshold(
+                image_path=p, output_path=Path(os.path.join(output_dir, (p.stem + 'treshold.png')))
+            )
+            process_image_with_opencv_dominant(
+                image_path=p, output_path=Path(os.path.join(output_dir, (p.stem + 'dominant.png')))
+            )
             process_image_with_opencv_bounds(
                 image_path=p,
-                output_path=output_dir / (p.stem + 'bounds.png'),
+                output_path=Path(os.path.join(output_dir, (p.stem + 'bounds.png'))),
                 lbound=LOWER_BOUND_2,
                 ubound=UPPER_BOUND_2,
             )
