@@ -7,8 +7,8 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, List
 
+from ..utils import OSName, check_dir_path, check_file_path, get_process
 from .pipeclient import PipeClient
-from .utils import OSName, check_dir_path, check_file_path, get_process
 
 if TYPE_CHECKING:
     pass

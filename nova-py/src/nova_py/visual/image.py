@@ -8,6 +8,7 @@ from os import scandir
 from pathlib import Path
 from typing import Final
 
+from ..utils import check_dir_path
 from .processing import (
     LOWER_BOUND_2,
     UPPER_BOUND_2,
@@ -19,7 +20,6 @@ from .processing import (
     process_video_with_opencv_bounds,
     process_video_with_opencv_dominant_color,
 )
-from .utils import check_dir_path
 
 _LOGGER: Final = logging.getLogger(__name__)
 
@@ -93,7 +93,7 @@ class Controller:
     def process_video_files(self, output_dir: Path) -> None:
         for p in self.videos:
             process_video_with_opencv_bounds(
-                input_path=str(p), output_path=os.path.join(output_dir, (p.stem + 'bounds.mp4'))
+                input_path=str(p), output_path=os.path.join(output_dir, (p.stem + 'bounds.mov'))
             )
             process_video_with_opencv_bounds(
                 input_path=str(p),
@@ -101,7 +101,7 @@ class Controller:
                 export_to_frames=True,
             )
             process_video_with_opencv_dominant_color(
-                input_path=str(p), output_path=os.path.join(output_dir, (p.stem + 'dominant.mp4'))
+                input_path=str(p), output_path=os.path.join(output_dir, (p.stem + 'dominant.mov'))
             )
             process_video_with_opencv_dominant_color(
                 input_path=str(p),

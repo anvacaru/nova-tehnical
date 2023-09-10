@@ -10,20 +10,15 @@ if TYPE_CHECKING:
     pass
 
 
-os_name = platform.system()
-if os_name == OSName.WINDOWS.value:
-    BASE_DIR: str = 'D:/NOVA/nova-tehnical/audio'
-    SEASCAPE_SOUNDTRACK: str = f'{BASE_DIR}/seascape.wav'
-    SEASCAPE_RECORDINGS: str = f'{BASE_DIR}/recordings'
-    OUTPUT: str = f'{BASE_DIR}/seascape_final_1.mp3'
-else:
-    BASE_DIR = '/Users/anvacaru/Desktop/dev/nova-tehnical/audio'
-    SEASCAPE_SOUNDTRACK = f'{BASE_DIR}/seascape.wav'
-    SEASCAPE_RECORDINGS = f'{BASE_DIR}/recordings'
-    OUTPUT = f'{BASE_DIR}/seascape_final_1.mp3'
-
-
-SEASCAPE_TIMESTAMPS: Final = [(1, 5), (2, 30), (3, 60)]
+BASE_DIR: Final = (
+    'D:/NOVA/nova-tehnical/audio'
+    if platform.system() == OSName.WINDOWS.value
+    else '/Users/anvacaru/Desktop/dev/nova-tehnical/audio'
+)
+SEASCAPE_SOUNDTRACK: Final = f'{BASE_DIR}/seascape.wav'
+SEASCAPE_RECORDINGS: Final = f'{BASE_DIR}/recordings'
+OUTPUT: Final = f'{BASE_DIR}/seascape_final_1.mp3'
+SEASCAPE_TIMESTAMPS: Final = [(1, 198), (2, 332), (3, 553), (2, 576)]
 
 
 def create_scenario(soundtrack: str, recordings: str, timestamps: list[Tuple[int, int]], output: str) -> Dict[str, Any]:

@@ -17,7 +17,7 @@ _LOGGER: Final = logging.getLogger(__name__)
 LOWER_BOUND_1: Final = np.array([30, 100, 100])
 UPPER_BOUND_1: Final = np.array([80, 255, 255])
 LOWER_BOUND_2: Final = np.array([36, 25, 25])
-UPPER_BOUND_2: Final = np.array([130, 255, 255])
+UPPER_BOUND_2: Final = np.array([70, 255, 255])
 
 
 def heic_to_jpg(image_path: Path) -> Path:
@@ -168,8 +168,8 @@ def process_video_with_opencv_bounds(
         _LOGGER.info(f'Exporting frames to {output_path}')
 
     video = cv2.VideoCapture(input_path)
-    # fourcc = cv2.VideoWriter_fourcc('p', 'n', 'g', ' ')  # type: ignore # Using PNG codec for transparency support
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # type: ignore
+    fourcc = cv2.VideoWriter_fourcc('p', 'n', 'g', ' ')  # type: ignore # Using PNG codec for transparency support
+    # fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # type: ignore
     fps = int(video.get(cv2.CAP_PROP_FPS))
     width, height = int(video.get(cv2.CAP_PROP_FRAME_WIDTH)), int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     if export_to_frames:
@@ -223,7 +223,7 @@ def process_video_with_opencv_dominant_color(input_path: str, output_path: str, 
 
     # videowriter
     res = (w, h)
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # type: ignore
+    fourcc = cv2.VideoWriter_fourcc(*'png ')  # type: ignore
     if export_to_frames:
         if not os.path.exists(output_path):
             os.makedirs(output_path)
