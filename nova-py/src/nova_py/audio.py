@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 import logging
-import os
 import platform
 import subprocess
 import time
-from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Final, Generator, List
+from typing import TYPE_CHECKING, Final, List
 
+from .pipeclient import PipeClient
 from .utils import OSName, check_dir_path, check_file_path, get_process
 
 if TYPE_CHECKING:
-    from typing import IO, Optional
+    pass
 
 
 _LOGGER: Final = logging.getLogger(__name__)
@@ -25,38 +24,20 @@ class AudacityController:
         os_name = platform.system()
         _LOGGER.info(f'Operating system name: {os_name}')
 
-        self._TOFILE: Optional[IO[str]] = None
-        self._FROMFILE: Optional[IO[str]] = None
         self._total_tracks: int = 0
-        self._TONAME: Path
-        self._FROMNAME: Path
         self._EOL: str
         self._CMD: List[str]
         self._process_name: str
-
+        self._client: PipeClient
         if os_name == OSName.WINDOWS.value:
-            self._TONAME = Path('\\\\.\\pipe\\ToSrvPipe')
-            self._FROMNAME = Path('\\\\.\\pipe\\FromSrvPipe')
-            self._EOL = '\r\n\0'
-            self._process_name = 'audacity.exe'
+            self._process_name = 'C:\\Program Files\\Audacity\\Audacity.exe'
             self._CMD = [self._process_name]
         elif os_name in {OSName.DARWIN.value, OSName.LINUX.value}:
-            uid = os.getuid()  # type: ignore
-            self._TONAME = Path(f'/tmp/audacity_script_pipe.to.{uid}')
-            self._FROMNAME = Path(f'/tmp/audacity_script_pipe.from.{uid}')
-            self._EOL = '\n'
+            # uid = os.getuid()  # type: ignore
             self._process_name = 'audacity'
             self._CMD = [self._process_name] if os_name == OSName.LINUX.value else ['open', '-a', 'Audacity']
         else:
             raise EnvironmentError(f'Unsupported operating system: {os_name}')
-
-    @contextmanager
-    def opened_pipes(self) -> Generator[None, None, None]:
-        self._open_pipes()
-        try:
-            yield
-        finally:
-            self._close_pipes()
 
     def save_project(self, output_path: str, add_to_history: bool = False, compress: bool = False) -> None:
         self.do_command(
@@ -116,75 +97,79 @@ class AudacityController:
         time.sleep(5)
 
     def stop_audacity(self) -> None:
-        self._send_command(command='Exit')
+        self._client.write(command='Exit')
 
     def do_command(self, command: str) -> str:
-        self._send_command(command=command)
-        response = self._get_response()
+        _LOGGER.debug(f'Sending command to Audacity: {command}')
+        self._client.write(command=command, timer=True)
+        response = self._client.read()
         _LOGGER.debug(f'Received response from Audacity: {response}')
         time.sleep(0.4)
         return response
 
-    def _send_command(self, command: str) -> None:
-        if not self._TOFILE:
-            raise ValueError('Communication pipe to Audacity is not opened. Ensure _open_pipes() was called.')
+    # def _send_command(self, command: str) -> None:
+    #     if not self._TOFILE:
+    #         raise ValueError('Communication pipe to Audacity is not opened. Ensure _open_pipes() was called.')
 
-        _LOGGER.debug(f'Sending command to Audacity: {command}')
-        self._TOFILE.write(command + self._EOL)
-        self._TOFILE.flush()
+    #     _LOGGER.debug(f'Sending command to Audacity: {command}')
+    #     self._TOFILE.write(command + self._EOL)
+    #     self._TOFILE.flush()
 
-    def _get_response(self) -> str:
-        if not self._FROMFILE:
-            raise ValueError('Communication pipe to Audacity is not opened. Ensure _open_pipes() was called.')
+    # def _get_response(self) -> str:
+    #     if not self._FROMFILE:
+    #         raise ValueError('Communication pipe to Audacity is not opened. Ensure _open_pipes() was called.')
 
-        lines = []
-        while True:
-            line = self._FROMFILE.readline()
-            if line == self._EOL:
-                break
-            lines.append(line)
+    #     lines = []
+    #     while True:
+    #         line = self._FROMFILE.readline()
+    #         if line == self._EOL:
+    #             break
+    #         lines.append(line)
 
-        return ''.join(lines).strip()
+    #     return ''.join(lines).strip()
 
-    def _open_pipes(self) -> None:
-        self._close_pipes()
+    # def _open_pipes(self) -> None:
+    #     self._close_pipes()
 
-        if not self._TONAME.exists():
-            _LOGGER.error(f'{self._TONAME} does not exist. Ensure Audacity is running with mod-script-pipe.')
-            raise FileNotFoundError(f'{self._TONAME} not found.')
+    #     if not os.path.exists(self._TONAME):
+    #         _LOGGER.error(f'{self._TONAME} does not exist. Ensure Audacity is running with mod-script-pipe.')
+    #         raise FileNotFoundError(f'{self._TONAME} not found.')
 
-        if not self._FROMNAME.exists():
-            _LOGGER.error(f'{self._FROMNAME} does not exist. Ensure Audacity is running with mod-script-pipe.')
-            raise FileNotFoundError(f'{self._FROMNAME} not found.')
+    #     if not os.path.exists(self._FROMNAME):
+    #         _LOGGER.error(f'{self._FROMNAME} does not exist. Ensure Audacity is running with mod-script-pipe.')
+    #         raise FileNotFoundError(f'{self._FROMNAME} not found.')
 
-        self._TOFILE = open(self._TONAME, 'w')
-        self._FROMFILE = open(self._FROMNAME, 'rt')
-        _LOGGER.info('Communication pipes with Audacity opened successfully.')
+    #     self._TOFILE = open(self._TONAME, 'w')
+    #     self._FROMFILE = open(self._FROMNAME, 'rt')
+    #     _LOGGER.info('Communication pipes with Audacity opened successfully.')
 
-    def _close_pipes(self) -> None:
-        if self._TOFILE:
-            self._TOFILE.close()
-            self._TOFILE = None
+    # def _close_pipes(self) -> None:
+    #     if self._TOFILE:
+    #         self._TOFILE.close()
+    #         self._TOFILE = None
 
-        if self._FROMFILE:
-            self._FROMFILE.close()
-            self._FROMFILE = None
+    #     if self._FROMFILE:
+    #         self._FROMFILE.close()
+    #         self._FROMFILE = None
 
-        _LOGGER.info('Communication pipes with Audacity closed successfully.')
+    #     _LOGGER.info('Communication pipes with Audacity closed successfully.')
 
     def start_audacity(self) -> int:
         _LOGGER.info('Checking if Audacity is running.')
         process = get_process(process_name=self._process_name)
         if process:
             _LOGGER.info(f'Audacity is already running with pid: {process.pid}')
+            self._client = PipeClient()
             return process.pid
 
         _LOGGER.info('Launching Audacity process...')
         try:
-            new_process = subprocess.Popen(self._CMD, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out, err = new_process.communicate(timeout=AUDACITY_TIMEOUT_TIME)
-            _LOGGER.debug(f'STDOUT: {out.decode()}')
-            _LOGGER.debug(f'STDERR: {err.decode()}')
+            new_process = subprocess.Popen(self._CMD, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            time.sleep(2)
+            # out, err = new_process.communicate(timeout=AUDACITY_TIMEOUT_TIME)
+            self._client = PipeClient()
+            # _LOGGER.debug(f'STDOUT: {out.decode()}')
+            # _LOGGER.debug(f'STDERR: {err.decode()}')
         except Exception as e:
             raise RuntimeError('Failed to start Audacity process.') from e
 

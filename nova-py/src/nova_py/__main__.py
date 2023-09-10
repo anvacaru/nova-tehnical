@@ -34,17 +34,16 @@ def main() -> None:
 def exec_audio(args: Namespace) -> None:
     controller = AudacityController()
     controller.start_audacity()
-    with controller.opened_pipes():
-        controller.import_audio(args.scenario.value['soundtrack'])
-        controller.import_audio_batch(args.scenario.value['recordings'])
-        controller.import_audio('/Users/anvacaru/Desktop/dev/nova-tehnical/audio/recordings/voice_0.wav')
-        for track_id, timestamp in args.scenario.value['timestamps']:
-            controller.move_audio_clip(track=track_id, destination_start=timestamp, destination_end=timestamp + 15)
-        controller.select_all()
-        controller.export_audio(output_path='/Users/anvacaru/Desktop/dev/nova-tehnical/audio/seascape_final_1.mp3')
-        controller.select_tracks(track=0, count=controller._total_tracks)
-        controller.remove_tracks()
-        controller.stop_audacity()
+    controller.import_audio(args.scenario.value['soundtrack'])
+    controller.import_audio_batch(args.scenario.value['recordings'])
+    # controller.import_audio('/Users/anvacaru/Desktop/dev/nova-tehnical/audio/recordings/voice_0.wav')
+    for track_id, timestamp in args.scenario.value['timestamps']:
+        controller.move_audio_clip(track=track_id, destination_start=timestamp, destination_end=timestamp + 15)
+    controller.select_all()
+    controller.export_audio(output_path=args.scenario.value['output'])
+    controller.select_tracks(track=0, count=controller._total_tracks)
+    controller.remove_tracks()
+    controller.stop_audacity()
 
 
 def exec_image(args: Namespace) -> None:

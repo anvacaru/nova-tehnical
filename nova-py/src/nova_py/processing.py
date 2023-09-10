@@ -17,7 +17,7 @@ _LOGGER: Final = logging.getLogger(__name__)
 LOWER_BOUND_1: Final = np.array([30, 100, 100])
 UPPER_BOUND_1: Final = np.array([80, 255, 255])
 LOWER_BOUND_2: Final = np.array([36, 25, 25])
-UPPER_BOUND_2: Final = np.array([70, 255, 255])
+UPPER_BOUND_2: Final = np.array([130, 255, 255])
 
 
 def heic_to_jpg(image_path: Path) -> Path:

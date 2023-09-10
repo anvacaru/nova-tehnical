@@ -92,21 +92,27 @@ class Controller:
 
     def process_video_files(self, output_dir: Path) -> None:
         for p in self.videos:
-            process_video_with_opencv_bounds(input_path=str(p), output_path=str(output_dir / (p.stem + 'bounds.mp4')))
             process_video_with_opencv_bounds(
-                input_path=str(p), output_path=str(output_dir / (p.stem + 'bounds_frames')), export_to_frames=True
+                input_path=str(p), output_path=os.path.join(output_dir, (p.stem + 'bounds.mp4'))
+            )
+            process_video_with_opencv_bounds(
+                input_path=str(p),
+                output_path=os.path.join(output_dir, (p.stem + 'bounds_frames')),
+                export_to_frames=True,
             )
             process_video_with_opencv_dominant_color(
-                input_path=str(p), output_path=str(output_dir / (p.stem + 'dominant.mp4'))
+                input_path=str(p), output_path=os.path.join(output_dir, (p.stem + 'dominant.mp4'))
             )
             process_video_with_opencv_dominant_color(
-                input_path=str(p), output_path=str(output_dir / (p.stem + 'dominant_frames')), export_to_frames=True
+                input_path=str(p),
+                output_path=os.path.join(output_dir, (p.stem + 'dominant_frames')),
+                export_to_frames=True,
             )
             self.invoke_ffmpeg(
-                input_path=output_dir / (p.stem + 'bounds_frames'),
-                output_path=output_dir / (p.stem + 'bounds_frames.mov'),
+                input_path=Path(os.path.join(output_dir, (p.stem + 'bounds_frames'))),
+                output_path=Path(os.path.join(output_dir, (p.stem + 'bounds_frames.mov'))),
             )
             self.invoke_ffmpeg(
-                input_path=output_dir / (p.stem + 'dominant_frames'),
-                output_path=output_dir / (p.stem + 'dominant_frames.mov'),
+                input_path=Path(os.path.join(output_dir, (p.stem + 'dominant_frames'))),
+                output_path=Path(os.path.join(output_dir, (p.stem + 'dominant_frames.mov'))),
             )
