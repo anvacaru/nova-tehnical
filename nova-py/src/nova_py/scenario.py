@@ -15,17 +15,16 @@ BASE_DIR: Final = (
     if platform.system() == OSName.WINDOWS.value
     else '/Users/anvacaru/Desktop/dev/nova-tehnical/audio'
 )
-SEASCAPE_SOUNDTRACK: Final = f'{BASE_DIR}/seascape.wav'
-SEASCAPE_RECORDINGS: Final = f'{BASE_DIR}/recordings'
-OUTPUT: Final = f'{BASE_DIR}/seascape_final_1.mp3'
+SEASCAPE_SOUNDTRACK: Final = f'{BASE_DIR}/have_you_seen_my_body_blank.mp3'
+OUTPUT: Final = f'{BASE_DIR}/have_you_seen_my_body.mp3'
 SEASCAPE_TIMESTAMPS: Final = [(1, 198), (2, 332), (3, 553), (2, 576)]
 
 
-def create_scenario(soundtrack: str, recordings: str, timestamps: list[Tuple[int, int]], output: str) -> Dict[str, Any]:
-    return {'soundtrack': soundtrack, 'timestamps': timestamps, 'recordings': recordings, 'output': output}
+def create_scenario(soundtrack: str, timestamps: list[Tuple[int, int]], output: str) -> Dict[str, Any]:
+    return {'soundtrack': soundtrack, 'timestamps': timestamps, 'output': output}
 
 
-SEASCAPE_SCENARIO: Final = create_scenario(SEASCAPE_SOUNDTRACK, SEASCAPE_RECORDINGS, SEASCAPE_TIMESTAMPS, OUTPUT)
+SEASCAPE_SCENARIO: Final = create_scenario(SEASCAPE_SOUNDTRACK, SEASCAPE_TIMESTAMPS, OUTPUT)
 
 
 class Scenario(Enum):

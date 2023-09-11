@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Final
 from .audio.controller import AudacityController
 from .cli.args import LOG_FORMAT, NOVACLIArgs, loglevel
 from .scenario import Scenario
+from .utils import get_input_path
 from .visual.image import Controller
 
 if TYPE_CHECKING:
@@ -30,18 +31,22 @@ def main() -> None:
     execute(args)
 
 
-def exec_audio(args: Namespace) -> None:
-    controller = AudacityController()
-    controller.start_audacity()
-    controller.import_audio(args.scenario.value['soundtrack'])
-    controller.import_audio_batch(args.scenario.value['recordings'])
-    for track_id, timestamp in args.scenario.value['timestamps']:
-        controller.move_audio_clip(track=track_id, destination_start=timestamp, destination_end=timestamp + 15)
-    controller.select_all()
-    controller.export_audio(output_path=args.scenario.value['output'])
-    controller.select_tracks(track=0, count=controller._total_tracks)
-    controller.remove_tracks()
-    controller.stop_audacity()
+def exec_process(args: Namespace) -> None:
+    input_dir: Path = args.input.resolve() if args.input is not None else get_input_path()
+    args.output.resolve()
+    scenario: Scenario = args.scenario
+
+    audioController = AudacityController()
+    audioController.start_audacity()
+    audioController.import_audio(scenario.value['soundtrack'])
+    audioController.import_audio_batch(input_dir=input_dir)
+    for track_id, timestamp in scenario.value['timestamps']:
+        audioController.move_audio_clip(track=track_id, destination_start=timestamp, destination_end=timestamp + 15)
+    audioController.select_all()
+    audioController.export_audio(output_path=scenario.value['output'])
+    audioController.select_tracks(track=0, count=audioController._total_tracks)
+    audioController.remove_tracks()
+    audioController.stop_audacity()
 
 
 def exec_visual(args: Namespace) -> None:
@@ -62,13 +67,13 @@ def _create_argument_parser() -> ArgumentParser:
     nova_py_args = ArgumentParser()
     nova_py_args_command = nova_py_args.add_subparsers(dest='command', required=True)
 
-    audio_parser = nova_py_args_command.add_parser(
-        'audio',
-        help='Start Audio Processing.',
+    main_parser = nova_py_args_command.add_parser(
+        'process',
+        help='Start processing photos and voice recordings.',
         parents=[nova_cli_args.logging_args],
     )
 
-    audio_parser.add_argument(
+    main_parser.add_argument(
         '--scenario',
         type=scenario_type,
         choices=list(Scenario),
@@ -76,15 +81,9 @@ def _create_argument_parser() -> ArgumentParser:
         help='The scenario to process during startup.',
     )
 
-    visual_parser = nova_py_args_command.add_parser(
-        'visual',
-        help='Start Visual Processing.',
-        parents=[nova_cli_args.logging_args],
-    )
+    main_parser.add_argument('--output', type=Path, required=True, help='Path to Resolume Composition.')
 
-    visual_parser.add_argument('--input', type=str, required=True, help='Path to the visual files.')
-
-    visual_parser.add_argument('--output', type=str, required=True, help='Path to store the output to.')
+    main_parser.add_argument('--input', type=Path, help='[Optional] Path to the input files.')
     return nova_py_args
 
 

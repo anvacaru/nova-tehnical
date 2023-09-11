@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, List
 
-from ..utils import OSName, check_dir_path, check_file_path, get_process
+from ..utils import OSName, check_dir_path, get_process
 from .pipeclient import PipeClient
 
 if TYPE_CHECKING:
@@ -44,19 +44,19 @@ class AudacityController:
             command=f'SaveProject2: Filename={output_path} AddToHistory={add_to_history} Compress={compress}'
         )
 
-    def import_audio(self, input_path: str) -> int:
-        check_file_path(Path(input_path))
+    def import_audio(self, input_path: Path) -> int:
         self.do_command(command=f'Import2: Filename={input_path}')
         self._total_tracks += 1
         return self._total_tracks - 1
 
-    def import_audio_batch(self, input_dir: str) -> None:
-        input_dir_object = Path(input_dir)
-        check_dir_path(input_dir_object)
-        wav_files = [file_path for file_path in input_dir_object.iterdir() if file_path.suffix == '.wav']
-
+    def import_audio_batch(self, input_dir: Path) -> None:
+        check_dir_path(input_dir)
+        wav_files = sorted(
+            [file_path for file_path in input_dir.iterdir() if file_path.suffix == '.wav'],
+            key=lambda x: x.stat().st_mtime,
+        )
         for file_path in wav_files:
-            self.import_audio(input_path=str(file_path))
+            self.import_audio(input_path=file_path)
 
     def move_audio_clip(self, track: int, destination_start: int, destination_end: int) -> None:
         self.select_audio(track=track, start=0, end=0)
