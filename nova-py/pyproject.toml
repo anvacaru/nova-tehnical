@@ -2,14 +2,12 @@
 name = "nova-py"
 version = "0.1.0"
 description = ""
-authors = ["Andrei <andrei.vacaru@runtimeverification.com>"]
+authors = ["Andrei <andrei96v@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 psutil = "^5.9.5"
 pillow = "^10.0.0"
-opencv-python = "^4.8.0.76"
-scikit-image = "^0.21.0"
 pillow-heif = "^0.13.0"
 
 

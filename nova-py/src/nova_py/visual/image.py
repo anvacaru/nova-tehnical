@@ -8,18 +8,10 @@ from os import scandir
 from pathlib import Path
 from typing import Final
 
+from PIL import Image
+from pillow_heif import register_heif_opener  # type: ignore
+
 from ..utils import check_dir_path
-from .processing import (
-    LOWER_BOUND_2,
-    UPPER_BOUND_2,
-    heic_to_jpg,
-    process_image_with_opencv_bounds,
-    process_image_with_opencv_dominant,
-    process_image_with_opencv_treshold,
-    process_image_with_pillow,
-    process_video_with_opencv_bounds,
-    process_video_with_opencv_dominant_color,
-)
 
 _LOGGER: Final = logging.getLogger(__name__)
 
@@ -69,50 +61,18 @@ class Controller:
     def heic_photos(self) -> list[Path]:
         return [file for file in self._files if self.is_heic_photo(file)]
 
-    def run_all_photos(self, output_dir: Path) -> None:
-        for p in self.photos:
-            process_image_with_pillow(image_path=p, output_path=Path(os.path.join(output_dir, (p.stem + 'pillow.png'))))
-            process_image_with_opencv_treshold(
-                image_path=p, output_path=Path(os.path.join(output_dir, (p.stem + 'treshold.png')))
-            )
-            process_image_with_opencv_dominant(
-                image_path=p, output_path=Path(os.path.join(output_dir, (p.stem + 'dominant.png')))
-            )
-            process_image_with_opencv_bounds(
-                image_path=p,
-                output_path=Path(os.path.join(output_dir, (p.stem + 'bounds.png'))),
-                lbound=LOWER_BOUND_2,
-                ubound=UPPER_BOUND_2,
-            )
+    @staticmethod
+    def heic_to_jpg(image_path: Path) -> Path:
+        _LOGGER.info(f'Converting {image_path} to jpg.')
+        register_heif_opener()
+        image = Image.open(image_path)
+        stem = image_path.stem
+        new_filename = stem + '.png'
+        new_path = image_path.parent / new_filename
+        image.convert('RGB').save(new_path)
+        return new_path
 
     def process_heic_files(self) -> None:
         for p in self.heic_photos:
-            np = heic_to_jpg(p)
+            np = self.heic_to_jpg(p)
             self._files.append(np)
-
-    def process_video_files(self, output_dir: Path) -> None:
-        for p in self.videos:
-            process_video_with_opencv_bounds(
-                input_path=str(p), output_path=os.path.join(output_dir, (p.stem + 'bounds.mov'))
-            )
-            process_video_with_opencv_bounds(
-                input_path=str(p),
-                output_path=os.path.join(output_dir, (p.stem + 'bounds_frames')),
-                export_to_frames=True,
-            )
-            process_video_with_opencv_dominant_color(
-                input_path=str(p), output_path=os.path.join(output_dir, (p.stem + 'dominant.mov'))
-            )
-            process_video_with_opencv_dominant_color(
-                input_path=str(p),
-                output_path=os.path.join(output_dir, (p.stem + 'dominant_frames')),
-                export_to_frames=True,
-            )
-            self.invoke_ffmpeg(
-                input_path=Path(os.path.join(output_dir, (p.stem + 'bounds_frames'))),
-                output_path=Path(os.path.join(output_dir, (p.stem + 'bounds_frames.mov'))),
-            )
-            self.invoke_ffmpeg(
-                input_path=Path(os.path.join(output_dir, (p.stem + 'dominant_frames'))),
-                output_path=Path(os.path.join(output_dir, (p.stem + 'dominant_frames.mov'))),
-            )

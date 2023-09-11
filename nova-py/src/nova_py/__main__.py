@@ -9,7 +9,6 @@ from .audio.controller import AudacityController
 from .cli.args import LOG_FORMAT, NOVACLIArgs, loglevel
 from .scenario import Scenario
 from .visual.image import Controller
-from .visual.processing import color_picker, color_picker2
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -46,20 +45,10 @@ def exec_audio(args: Namespace) -> None:
 
 
 def exec_visual(args: Namespace) -> None:
-    output = args.output
+    args.output
     controller = Controller()
     controller.read_files(Path(args.input))
     controller.process_heic_files()
-    controller.run_all_photos(output)
-    controller.process_video_files(output)
-
-
-def exec_picker(args: Namespace) -> None:
-    color_picker2(args.file_path)
-
-
-def exec_trackbar(args: Namespace) -> None:
-    color_picker(args.file_path)
 
 
 def _create_argument_parser() -> ArgumentParser:
@@ -96,21 +85,6 @@ def _create_argument_parser() -> ArgumentParser:
     visual_parser.add_argument('--input', type=str, required=True, help='Path to the visual files.')
 
     visual_parser.add_argument('--output', type=str, required=True, help='Path to store the output to.')
-    trackbar_parser = nova_py_args_command.add_parser(
-        'trackbar',
-        help='Start Color Trackbar.',
-        parents=[nova_cli_args.logging_args],
-    )
-
-    trackbar_parser.add_argument('file_path', help='Path to the visual file.')
-
-    picker_parser = nova_py_args_command.add_parser(
-        'picker',
-        help='Start Color Picker.',
-        parents=[nova_cli_args.logging_args],
-    )
-
-    picker_parser.add_argument('file_path', help='Path to the visual file.')
     return nova_py_args
 
 
