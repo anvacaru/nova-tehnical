@@ -11,12 +11,10 @@ if TYPE_CHECKING:
 
 
 BASE_DIR: Final = (
-    'D:/NOVA/nova-tehnical/audio'
-    if platform.system() == OSName.WINDOWS.value
-    else '/Users/anvacaru/Desktop/dev/nova-tehnical/audio'
+    'D:\\NOVA\\' if platform.system() == OSName.WINDOWS.value else '/Users/anvacaru/Desktop/dev/nova-tehnical/audio'
 )
-SEASCAPE_SOUNDTRACK: Final = f'{BASE_DIR}/have_you_seen_my_body_blank.mp3'
-OUTPUT: Final = f'{BASE_DIR}/have_you_seen_my_body.mp3'
+SEASCAPE_SOUNDTRACK: Final = f'{BASE_DIR}have_you_seen_my_body.aif'
+OUTPUT: Final = f'{BASE_DIR}have_you_seen_my_body_voices.aiff'
 SEASCAPE_TIMESTAMPS: Final = [(1, 198), (2, 332), (3, 553), (2, 576)]
 
 

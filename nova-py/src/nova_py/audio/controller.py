@@ -45,16 +45,18 @@ class AudacityController:
         )
 
     def import_audio(self, input_path: Path) -> int:
-        self.do_command(command=f'Import2: Filename={input_path}')
+        p = str(input_path).replace('\\', '/')
+        self.do_command(command=f'Import2: Filename="{p}"')
         self._total_tracks += 1
         return self._total_tracks - 1
 
     def import_audio_batch(self, input_dir: Path) -> None:
         check_dir_path(input_dir)
         wav_files = sorted(
-            [file_path for file_path in input_dir.iterdir() if file_path.suffix == '.wav'],
+            [file_path for file_path in input_dir.iterdir() if file_path.suffix == '.m4a'],
             key=lambda x: x.stat().st_mtime,
         )
+        print(wav_files)
         for file_path in wav_files:
             self.import_audio(input_path=file_path)
 
@@ -91,8 +93,9 @@ class AudacityController:
     def delete_audio(self) -> None:
         self.do_command(command='Delete')
 
-    def export_audio(self, output_path: str) -> None:
-        export_command = 'Export2: Filename={}'.format(output_path)
+    def export_audio(self, output_path: Path) -> None:
+        # p = str(output_path).replace('\\', '/')
+        export_command = 'Export2: Filename="D:/NOVA/hysmbv.aiff"'
         self.do_command(command=export_command)
         time.sleep(5)
 

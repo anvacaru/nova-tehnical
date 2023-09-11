@@ -8,7 +8,7 @@ from os import scandir
 from pathlib import Path
 from typing import Final
 
-from PIL import Image
+from PIL import Image  # type: ignore
 from pillow_heif import register_heif_opener  # type: ignore
 
 from ..utils import check_dir_path
