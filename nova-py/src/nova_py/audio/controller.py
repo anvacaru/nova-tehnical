@@ -95,7 +95,7 @@ class AudacityController:
 
     def export_audio(self, output_path: Path) -> None:
         # p = str(output_path).replace('\\', '/')
-        export_command = 'Export2: Filename="D:/NOVA/hysmbv.aiff"'
+        export_command = 'Export2: Filename="D:/NOVA/voices.aiff"'
         self.do_command(command=export_command)
         time.sleep(5)
 

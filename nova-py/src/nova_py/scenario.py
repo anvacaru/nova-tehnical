@@ -15,14 +15,14 @@ BASE_DIR: Final = (
 )
 SEASCAPE_SOUNDTRACK: Final = f'{BASE_DIR}have_you_seen_my_body.aif'
 OUTPUT: Final = f'{BASE_DIR}have_you_seen_my_body_voices.aiff'
-SEASCAPE_TIMESTAMPS: Final = [(1, 198), (2, 332), (3, 553), (2, 576)]
+SEASCAPE_TIMESTAMPS: Final = [(0, 198), (1, 332), (2, 553), (1, 576)]
 
 
-def create_scenario(soundtrack: str, timestamps: list[Tuple[int, int]], output: str) -> Dict[str, Any]:
-    return {'soundtrack': soundtrack, 'timestamps': timestamps, 'output': output}
+def create_scenario(timestamps: list[Tuple[int, int]], output: str) -> Dict[str, Any]:
+    return {'timestamps': timestamps, 'output': output}
 
 
-SEASCAPE_SCENARIO: Final = create_scenario(SEASCAPE_SOUNDTRACK, SEASCAPE_TIMESTAMPS, OUTPUT)
+SEASCAPE_SCENARIO: Final = create_scenario(timestamps=SEASCAPE_TIMESTAMPS, output=OUTPUT)
 
 
 class Scenario(Enum):
