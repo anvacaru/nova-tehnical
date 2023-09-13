@@ -39,8 +39,9 @@ def exec_process(args: Namespace) -> None:
     audioController = AudacityController()
     audioController.start_audacity()
     audioController.import_audio_batch(input_dir=input_dir)
-    for track_id, timestamp in scenario.value['timestamps']:
-        audioController.move_audio_clip(track=track_id, destination_start=timestamp, destination_end=timestamp + 15)
+    audio_map = scenario.value['audio_map']
+    for track_id in audio_map.keys():
+        audioController.move_audio_clip(track=track_id, destinations=audio_map[track_id], duration=15)
     audioController.select_all()
     audioController.export_audio(output_path=scenario.value['output'])
     audioController.select_tracks(track=0, count=audioController._total_tracks)

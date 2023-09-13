@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from pathlib import Path
 from tkinter.filedialog import askdirectory
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import psutil
 from psutil import Process
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     pass
 
 
-def get_process(process_name: str) -> Optional[Process]:
+def get_process(process_name: str) -> Process | None:
     for process in psutil.process_iter():
         try:
             if process_name.lower() in process.name().lower():

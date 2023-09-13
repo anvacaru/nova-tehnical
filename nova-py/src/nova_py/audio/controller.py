@@ -60,12 +60,13 @@ class AudacityController:
         for file_path in wav_files:
             self.import_audio(input_path=file_path)
 
-    def move_audio_clip(self, track: int, destination_start: int, destination_end: int) -> None:
+    def move_audio_clip(self, track: int, destinations: list[int], duration: int) -> None:
         self.select_audio(track=track, start=0, end=0)
         self.select_cursor_to_next_clip_boundary()
         self.cut_audio()
-        self.select_audio(track=track, start=destination_start, end=destination_end)
-        self.paste_audio()
+        for start in destinations:
+            self.select_audio(track=track, start=start, end=start + duration)
+            self.paste_audio()
 
     def select_audio(self, track: int = 0, start: int = 0, end: int = 0) -> None:
         if track < 0 or track >= self._total_tracks:
@@ -110,55 +111,9 @@ class AudacityController:
         time.sleep(0.4)
         return response
 
-    # def _send_command(self, command: str) -> None:
-    #     if not self._TOFILE:
-    #         raise ValueError('Communication pipe to Audacity is not opened. Ensure _open_pipes() was called.')
-
-    #     _LOGGER.debug(f'Sending command to Audacity: {command}')
-    #     self._TOFILE.write(command + self._EOL)
-    #     self._TOFILE.flush()
-
-    # def _get_response(self) -> str:
-    #     if not self._FROMFILE:
-    #         raise ValueError('Communication pipe to Audacity is not opened. Ensure _open_pipes() was called.')
-
-    #     lines = []
-    #     while True:
-    #         line = self._FROMFILE.readline()
-    #         if line == self._EOL:
-    #             break
-    #         lines.append(line)
-
-    #     return ''.join(lines).strip()
-
-    # def _open_pipes(self) -> None:
-    #     self._close_pipes()
-
-    #     if not os.path.exists(self._TONAME):
-    #         _LOGGER.error(f'{self._TONAME} does not exist. Ensure Audacity is running with mod-script-pipe.')
-    #         raise FileNotFoundError(f'{self._TONAME} not found.')
-
-    #     if not os.path.exists(self._FROMNAME):
-    #         _LOGGER.error(f'{self._FROMNAME} does not exist. Ensure Audacity is running with mod-script-pipe.')
-    #         raise FileNotFoundError(f'{self._FROMNAME} not found.')
-
-    #     self._TOFILE = open(self._TONAME, 'w')
-    #     self._FROMFILE = open(self._FROMNAME, 'rt')
-    #     _LOGGER.info('Communication pipes with Audacity opened successfully.')
-
-    # def _close_pipes(self) -> None:
-    #     if self._TOFILE:
-    #         self._TOFILE.close()
-    #         self._TOFILE = None
-
-    #     if self._FROMFILE:
-    #         self._FROMFILE.close()
-    #         self._FROMFILE = None
-
-    #     _LOGGER.info('Communication pipes with Audacity closed successfully.')
-
     def start_audacity(self) -> int:
         _LOGGER.info('Checking if Audacity is running.')
+        print(self._process_name)
         process = get_process(process_name=self._process_name)
         if process:
             _LOGGER.info(f'Audacity is already running with pid: {process.pid}')
