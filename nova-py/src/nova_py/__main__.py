@@ -9,7 +9,7 @@ from .audio.controller import AudacityController
 from .cli.args import LOG_FORMAT, NOVACLIArgs, loglevel
 from .scenario import Scenario
 from .utils import get_input_path
-from .visual.image import Controller
+from .visual.image import VisualController
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -34,8 +34,11 @@ def main() -> None:
 def exec_process(args: Namespace) -> None:
     input_dir: Path = args.input.resolve() if args.input is not None else get_input_path()
     args.output.resolve()
-    scenario: Scenario = args.scenario
+    audio_processing(input_dir=input_dir, scenario=args.scenario)
+    visual_processing(input_dir=input_dir, scenario=args.scenario)
 
+
+def audio_processing(input_dir: Path, scenario: Scenario) -> None:
     audioController = AudacityController()
     audioController.start_audacity()
     audioController.import_audio_batch(input_dir=input_dir)
@@ -49,11 +52,10 @@ def exec_process(args: Namespace) -> None:
     audioController.stop_audacity()
 
 
-def exec_visual(args: Namespace) -> None:
-    args.output
-    controller = Controller()
-    controller.read_files(Path(args.input))
-    controller.process_heic_files()
+def visual_processing(input_dir: Path, scenario: Scenario) -> None:
+    visualController = VisualController()
+    visualController.read_files(input_dir=input_dir, expected=len(scenario.value['img_names']))
+    visualController.process_files(img_names=scenario.value['img_names'], output_dir=scenario.value['output'])
 
 
 def _create_argument_parser() -> ArgumentParser:

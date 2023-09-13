@@ -7,12 +7,11 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, List
 
-from ..utils import OSName, check_dir_path, get_process
+from ..utils import OSName, check_dir_path, get_files_by_extension, get_process
 from .pipeclient import PipeClient
 
 if TYPE_CHECKING:
     pass
-
 
 _LOGGER: Final = logging.getLogger(__name__)
 AUDACITY_WAIT_TIME: Final = 3
@@ -52,11 +51,7 @@ class AudacityController:
 
     def import_audio_batch(self, input_dir: Path) -> None:
         check_dir_path(input_dir)
-        wav_files = sorted(
-            [file_path for file_path in input_dir.iterdir() if file_path.suffix == '.m4a'],
-            key=lambda x: x.stat().st_mtime,
-        )
-        print(wav_files)
+        wav_files = get_files_by_extension(input_dir=input_dir, accepted_extensions=['.m4a'])
         for file_path in wav_files:
             self.import_audio(input_path=file_path)
 
