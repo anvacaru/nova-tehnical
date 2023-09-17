@@ -75,8 +75,12 @@ class AudacityController:
         self.do_command(command='SelectAll')
 
     def select_tracks(self, track: int, count: int = 1) -> None:
-        self.do_command(command=f'SelectTracks:Mode=Set Track={track} TrackCount={count}')
+        self.do_command(command=f'SelectTracks: Mode=Set Track={track} TrackCount={count}')
 
+    def select(self, start: int, end: int, track: int, count: int) -> None:
+        self.do_command(command=f'Select: Start={start} End={end}, Track={track}, TrackCount={count}')
+
+    # SelCursorToTrackEnd
     def remove_tracks(self) -> None:
         self.do_command(command='RemoveTracks')
 
@@ -89,11 +93,18 @@ class AudacityController:
     def delete_audio(self) -> None:
         self.do_command(command='Delete')
 
-    def export_audio(self, output_path: Path) -> None:
-        # p = str(output_path).replace('\\', '/')
-        export_command = 'Export2: Filename="D:/NOVA/voices.aiff"'
+    def export_audio(self) -> None:
+        export_command = 'Export2: Filename="D:/NOVA/Have you seen my body/voices.aiff"'
         self.do_command(command=export_command)
         time.sleep(5)
+
+    def add_reverb_vocal1(self) -> None:
+        reverb_command = 'Reverb: RoomSize:70, Delay=20, Reverberance=40, HfDamping=99, ToneLow=100, ToneHigh=50, WetGain=-12, DryGain=0, StereoWidth=70'
+        self.do_command(command=reverb_command)
+
+    def add_reverb_largeroom(self) -> None:
+        reverb_command = 'Reverb: RoomSize:85, Delay=10, Reverberance=40, HfDamping=50, ToneLow=100, ToneHigh=80, WetGain=0, DryGain=-6, StereoWidth=90'
+        self.do_command(command=reverb_command)
 
     def stop_audacity(self) -> None:
         self._client.write(command='Exit')

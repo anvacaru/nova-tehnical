@@ -33,9 +33,8 @@ def main() -> None:
 
 def exec_process(args: Namespace) -> None:
     input_dir: Path = args.input.resolve() if args.input is not None else get_input_path()
-    args.output.resolve()
     audio_processing(input_dir=input_dir, scenario=args.scenario)
-    visual_processing(input_dir=input_dir, scenario=args.scenario)
+    # visual_processing(input_dir=input_dir, scenario=args.scenario)
 
 
 def audio_processing(input_dir: Path, scenario: Scenario) -> None:
@@ -46,10 +45,11 @@ def audio_processing(input_dir: Path, scenario: Scenario) -> None:
     for track_id in audio_map.keys():
         audioController.move_audio_clip(track=track_id, destinations=audio_map[track_id], duration=15)
     audioController.select_all()
-    audioController.export_audio(output_path=scenario.value['output'])
-    audioController.select_tracks(track=0, count=audioController._total_tracks)
+    audioController.add_reverb_largeroom()
+    audioController.select(start=0, end=600, track=0, count=audioController._total_tracks)
+    audioController.export_audio()
     audioController.remove_tracks()
-    audioController.stop_audacity()
+    # audioController.stop_audacity()
 
 
 def visual_processing(input_dir: Path, scenario: Scenario) -> None:
@@ -82,8 +82,6 @@ def _create_argument_parser() -> ArgumentParser:
         required=True,
         help='The scenario to process during startup.',
     )
-
-    main_parser.add_argument('--output', type=Path, required=True, help='Path to Resolume Composition.')
 
     main_parser.add_argument('--input', type=Path, help='[Optional] Path to the input files.')
     return nova_py_args
