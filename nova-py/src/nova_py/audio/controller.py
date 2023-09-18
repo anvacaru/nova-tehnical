@@ -77,12 +77,17 @@ class AudacityController:
     def select_tracks(self, track: int, count: int = 1) -> None:
         self.do_command(command=f'SelectTracks: Mode=Set Track={track} TrackCount={count}')
 
+    def add_delay(self) -> None:
+        self.do_command(command='Delay: delay=0.5, number=4')
+
     def select(self, start: int, end: int, track: int, count: int) -> None:
         self.do_command(command=f'Select: Start={start} End={end}, Track={track}, TrackCount={count}')
 
-    # SelCursorToTrackEnd
     def remove_tracks(self) -> None:
         self.do_command(command='RemoveTracks')
+
+    def echo_audio(self) -> None:
+        self.do_command(command='Echo: Delay=3')
 
     def cut_audio(self) -> None:
         self.do_command(command='Cut')

@@ -46,6 +46,8 @@ def audio_processing(input_dir: Path, scenario: Scenario) -> None:
         audioController.move_audio_clip(track=track_id, destinations=audio_map[track_id], duration=15)
     audioController.select_all()
     audioController.add_reverb_largeroom()
+    audioController.select_tracks(track=0, count=1)
+    audioController.add_delay()
     audioController.select(start=0, end=600, track=0, count=audioController._total_tracks)
     audioController.export_audio()
     audioController.remove_tracks()

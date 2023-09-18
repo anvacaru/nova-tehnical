@@ -15,7 +15,7 @@ _LOGGER: Final = logging.getLogger(__name__)
 
 
 class VisualController:
-    IMG_EXTENSIONS: Final[list[str]] = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.heic']
+    IMG_EXTENSIONS: Final[list[str]] = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.heic', '.webp']
 
     def __init__(self) -> None:
         os_name = platform.system()
