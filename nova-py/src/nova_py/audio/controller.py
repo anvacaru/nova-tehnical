@@ -51,7 +51,7 @@ class AudacityController:
 
     def import_audio_batch(self, input_dir: Path) -> None:
         check_dir_path(input_dir)
-        wav_files = get_files_by_extension(input_dir=input_dir, accepted_extensions=['.m4a'])
+        wav_files = get_files_by_extension(input_dir=input_dir, accepted_extensions=['.m4a','.mp3'])
         for file_path in wav_files:
             self.import_audio(input_path=file_path)
 

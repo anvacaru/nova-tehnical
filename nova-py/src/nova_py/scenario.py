@@ -15,7 +15,7 @@ BASE_DIR: Final[Path] = (
     Path('D:\\NOVA\\') if platform.system() == OSName.WINDOWS.value else Path('/Users/dev/nova-tehnical/')
 )
 SEASCAPE_COMPOSITION_DIR: Final[Path] = BASE_DIR / 'Have you seen my body'
-SEASCAPE_TIMECUES: Final[dict[int, list[int]]] = {0: [198], 1: [332, 576], 2: [553]}
+SEASCAPE_TIMECUES: Final[dict[int, list[int]]] = {0: [198], 1: [332, 576], 2: [555]}
 SEASCAPE_IMGNAMES: Final[list[str]] = [
     'user_frontal.png',
     'user_hands_raised_frontal.png',
