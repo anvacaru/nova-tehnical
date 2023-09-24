@@ -4,13 +4,12 @@ import logging
 import os
 import platform
 from pathlib import Path
-from tkinter.messagebox import showerror
 from typing import Final
 
 from PIL import Image  # type: ignore
 from pillow_heif import register_heif_opener  # type: ignore
 
-from ..utils import check_dir_path, get_files_by_extension
+from ..utils import check_dir_path, get_files_by_extension, raise_error
 
 _LOGGER: Final = logging.getLogger(__name__)
 
@@ -26,8 +25,7 @@ class VisualController:
         check_dir_path(input_dir)
         self._files = get_files_by_extension(input_dir=input_dir, accepted_extensions=self.IMG_EXTENSIONS)
         if len(self._files) != expected:
-            showerror(title='Error', message='Error loading photos. Invalid number of files!')
-            raise ValueError('Error loading photos. Invalid number of files!')
+            raise_error(error_class=ValueError, message='Error loading photos. Invalid number of files!')
 
     def process_files(self, img_names: list[str], output_dir: Path) -> None:
         for i, file in enumerate(self._files):

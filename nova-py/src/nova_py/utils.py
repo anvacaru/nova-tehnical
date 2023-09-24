@@ -4,7 +4,8 @@ import logging
 from enum import Enum
 from pathlib import Path
 from tkinter.filedialog import askdirectory
-from typing import TYPE_CHECKING, Final
+from tkinter.messagebox import showerror
+from typing import TYPE_CHECKING, Final, NoReturn, Type
 
 import psutil
 from psutil import Process
@@ -38,21 +39,26 @@ def get_files_by_extension(input_dir: Path, accepted_extensions: list[str]) -> l
 def check_file_path(path: Path) -> None:
     path = path.resolve()
     if not path.exists():
-        raise ValueError(f'File does not exist: {path}')
+        raise_error(error_class=ValueError, message=f'File does not exist: {path}')
     if not path.is_file():
-        raise ValueError(f'Path is not a file: {path}')
+        raise_error(error_class=ValueError, message=f'Path is not a file: {path}')
 
 
 def check_dir_path(path: Path) -> None:
     path = path.resolve()
     if not path.exists():
-        raise ValueError(f'Directory does not exist: {path}')
+        raise_error(error_class=ValueError, message=f'Directory does not exist: {path}')
     if not path.is_dir():
-        raise ValueError(f'Path is not a directory: {path}')
+        raise_error(error_class=ValueError, message=f'Path is not a directory: {path}')
 
 
 def get_input_path() -> Path:
     return Path(f'{askdirectory(title="Visitor photos and voice recordings", mustexist=True)}')
+
+
+def raise_error(error_class: Type[Exception], message: str) -> NoReturn:
+    showerror(title='Error', message=message)
+    raise error_class(message)
 
 
 class OSName(Enum):

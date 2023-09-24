@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, List
 
-from ..utils import OSName, check_dir_path, get_files_by_extension, get_process
+from ..utils import OSName, check_dir_path, get_files_by_extension, get_process, raise_error
 from .pipeclient import PipeClient
 
 if TYPE_CHECKING:
@@ -31,11 +31,10 @@ class AudacityController:
             self._process_name = 'C:\\Program Files\\Audacity\\Audacity.exe'
             self._CMD = [self._process_name]
         elif os_name in {OSName.DARWIN.value, OSName.LINUX.value}:
-            # uid = os.getuid()  # type: ignore
             self._process_name = 'audacity'
             self._CMD = [self._process_name] if os_name == OSName.LINUX.value else ['open', '-a', 'Audacity']
         else:
-            raise EnvironmentError(f'Unsupported operating system: {os_name}')
+            raise_error(error_class=EnvironmentError, message=f'Unsupported operating system: {os_name}')
 
     def save_project(self, output_path: str, add_to_history: bool = False, compress: bool = False) -> None:
         self.do_command(
@@ -64,7 +63,7 @@ class AudacityController:
 
     def select_audio(self, track: int = 0, start: int = 0, end: int = 0) -> None:
         if track < 0 or track >= self._total_tracks:
-            raise ValueError(f'Invalid track number: {track}')
+            raise_error(error_class=ValueError, message=f'Invalid track number: {track}')
         self.do_command(command=f'Select: Start={start} End={end} Track={track}')
 
     def select_cursor_to_next_clip_boundary(self) -> None:
@@ -134,8 +133,8 @@ class AudacityController:
             new_process = subprocess.Popen(self._CMD, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             time.sleep(2)
             self._client = PipeClient()
-        except Exception as e:
-            raise RuntimeError('Failed to start Audacity process.') from e
+        except Exception:
+            raise_error(error_class=RuntimeError, message='Failed to start Audacity process.')
 
         _LOGGER.debug(f'Audacity process started successfully with pid: {new_process.pid}')
         time.sleep(AUDACITY_WAIT_TIME)

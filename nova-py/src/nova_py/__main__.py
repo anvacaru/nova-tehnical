@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Final
 from .audio.controller import AudacityController
 from .cli.args import LOG_FORMAT, NOVACLIArgs, loglevel
 from .scenario import Scenario
-from .utils import get_input_path
+from .utils import get_input_path, raise_error
 from .visual.image import VisualController
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ def main() -> None:
 
     executor_name = 'exec_' + args.command.lower().replace('-', '_')
     if executor_name not in globals():
-        raise AssertionError(f'Unimplemented command: {args.command}')
+        raise_error(error_class=AssertionError, message=f'Unimplemented command: {args.command}')
 
     execute = globals()[executor_name]
     execute(args)
@@ -34,9 +34,9 @@ def main() -> None:
 def exec_process(args: Namespace) -> None:
     input_dir: Path = args.input.resolve() if args.input is not None else get_input_path()
     scenario = args.scenario
-    if scenario.has_audio:
+    if scenario.value['has_audio']:
         audio_processing(input_dir=input_dir, scenario=args.scenario)
-    if scenario.has_visual:
+    if scenario.value['has_visual']:
         visual_processing(input_dir=input_dir, scenario=args.scenario)
 
 
@@ -68,7 +68,10 @@ def _create_argument_parser() -> ArgumentParser:
         try:
             return Scenario[arg.upper()]
         except KeyError:
-            raise ArgumentTypeError(f'Invalid scenario: {arg}. Expected one of: {[str(e) for e in Scenario]}')
+            raise_error(
+                error_class=ArgumentTypeError,
+                message=f'Invalid scenario: {arg}. Expected one of: {[str(e) for e in Scenario]}',
+            )
 
     nova_cli_args = NOVACLIArgs()
     nova_py_args = ArgumentParser()
