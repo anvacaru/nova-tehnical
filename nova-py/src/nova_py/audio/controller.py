@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 
 _LOGGER: Final = logging.getLogger(__name__)
 AUDACITY_WAIT_TIME: Final = 3
-AUDACITY_TIMEOUT_TIME: Final = 10
 
 
 class AudacityController:
@@ -51,7 +50,7 @@ class AudacityController:
 
     def import_audio_batch(self, input_dir: Path) -> None:
         check_dir_path(input_dir)
-        wav_files = get_files_by_extension(input_dir=input_dir, accepted_extensions=['.m4a','.mp3'])
+        wav_files = get_files_by_extension(input_dir=input_dir, accepted_extensions=['.m4a', '.mp3'])
         for file_path in wav_files:
             self.import_audio(input_path=file_path)
 
@@ -124,7 +123,6 @@ class AudacityController:
 
     def start_audacity(self) -> int:
         _LOGGER.info('Checking if Audacity is running.')
-        print(self._process_name)
         process = get_process(process_name=self._process_name)
         if process:
             _LOGGER.info(f'Audacity is already running with pid: {process.pid}')
@@ -135,10 +133,7 @@ class AudacityController:
         try:
             new_process = subprocess.Popen(self._CMD, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             time.sleep(2)
-            # out, err = new_process.communicate(timeout=AUDACITY_TIMEOUT_TIME)
             self._client = PipeClient()
-            # _LOGGER.debug(f'STDOUT: {out.decode()}')
-            # _LOGGER.debug(f'STDERR: {err.decode()}')
         except Exception as e:
             raise RuntimeError('Failed to start Audacity process.') from e
 

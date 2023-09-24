@@ -34,7 +34,7 @@ def main() -> None:
 def exec_process(args: Namespace) -> None:
     input_dir: Path = args.input.resolve() if args.input is not None else get_input_path()
     audio_processing(input_dir=input_dir, scenario=args.scenario)
-    visual_processing(input_dir=input_dir, scenario=args.scenario)
+    # visual_processing(input_dir=input_dir, scenario=args.scenario)
 
 
 def audio_processing(input_dir: Path, scenario: Scenario) -> None:
@@ -50,8 +50,8 @@ def audio_processing(input_dir: Path, scenario: Scenario) -> None:
     audioController.add_delay()
     audioController.select(start=0, end=600, track=0, count=audioController._total_tracks)
     audioController.export_audio()
-    audioController.remove_tracks()
-    audioController.stop_audacity()
+    # audioController.remove_tracks()
+    # audioController.stop_audacity()
 
 
 def visual_processing(input_dir: Path, scenario: Scenario) -> None:

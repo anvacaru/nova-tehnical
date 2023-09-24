@@ -4,6 +4,7 @@ import logging
 import os
 import platform
 from pathlib import Path
+from tkinter.messagebox import showerror
 from typing import Final
 
 from PIL import Image  # type: ignore
@@ -25,7 +26,8 @@ class VisualController:
         check_dir_path(input_dir)
         self._files = get_files_by_extension(input_dir=input_dir, accepted_extensions=self.IMG_EXTENSIONS)
         if len(self._files) != expected:
-            raise ValueError('Invalid Number of files!')
+            showerror(title='Error', message='Error loading photos. Invalid number of files!')
+            raise ValueError('Error loading photos. Invalid number of files!')
 
     def process_files(self, img_names: list[str], output_dir: Path) -> None:
         for i, file in enumerate(self._files):
