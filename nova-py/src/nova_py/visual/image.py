@@ -24,13 +24,19 @@ class VisualController:
     def read_files(self, input_dir: Path, expected: int) -> None:
         check_dir_path(input_dir)
         self._files = get_files_by_extension(input_dir=input_dir, accepted_extensions=self.IMG_EXTENSIONS)
-        if len(self._files) != expected:
+        if (
+            len(self._files) != expected and len(self._files) != expected / 2
+        ):  # second condition only for walk #TODO: fix
             raise_error(error_class=ValueError, message='Error loading photos. Invalid number of files!')
 
     def process_files(self, img_names: list[str], output_dir: Path) -> None:
         for i, file in enumerate(self._files):
             output_path = output_dir / img_names[i]
             self.convert_file(image_path=file, output_path=output_path)
+        if len(self._files) == 3:  # second condition only for walk #TODO: fix
+            for i, file in enumerate(self._files):
+                output_path = output_dir / img_names[i + 3]
+                self.convert_file(image_path=file, output_path=output_path)
 
     @staticmethod
     def is_photo(file_path: Path) -> bool:
